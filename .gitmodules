@@ -1,0 +1,3 @@
+[submodule "ESPixelStick"]
+	path = ESPixelStick
+	url = https://github.com/madsci1016/ESPixelStick
