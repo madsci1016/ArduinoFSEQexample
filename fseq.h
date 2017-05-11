@@ -24,6 +24,9 @@
 #ifndef FSEQ_H_
 #define FSEQ_H_
 
+#include <Arduino.h>
+#include <SD.h>
+
 // header byte offsets
 #define FSEQ_HEADER_SIZE        4   //uint16
 #define FSEQ_VER                6   //uint16

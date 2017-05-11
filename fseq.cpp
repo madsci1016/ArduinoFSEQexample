@@ -20,10 +20,10 @@
 *
 */
 
-#include <Arduino.h>
+
 #include "fseq.h"
 
-uint8_t fileid[]="FSEQ";
+uint8_t fileid[]="PSEQ";
 
 //open file, parse header
 int Fseq::begin(File fp){
@@ -39,21 +39,21 @@ int Fseq::begin(File fp){
   //read header size
   _file.seek(FSEQ_HEADER_SIZE);
   _header_size = _file.read();
-  _header_size += (_file.read() << 8);
+  _header_size += ((uint16_t)_file.read() << 8);
   
   //read number of channels
   _file.seek(FSEQ_NUM_CHANNELS);
   _channels = _file.read();
-  _channels += (_file.read() << 8);
-  _channels += (_file.read() << 16);
-  _channels += (_file.read() << 24);
+  _channels += ((uint32_t)_file.read() << 8);
+  _channels += ((uint32_t)_file.read() << 16);
+  _channels += ((uint32_t)_file.read() << 24);
   
   //read number of frames
   _file.seek(FSEQ_NUM_FRAMES);
   _frames = _file.read();
-  _frames += (_file.read() << 8);
-  _frames += (_file.read() << 16);
-  _frames += (_file.read() << 24);
+  _frames += ((uint32_t)_file.read() << 8);
+  _frames += ((uint32_t)_file.read() << 16);
+  _frames += ((uint32_t)_file.read() << 24);
   
   //read frame period in ms
   _file.seek(FSEQ_FRAME_PERIOD);
@@ -73,7 +73,8 @@ void Fseq::close(){
 }
 
 //return a buffer of all the channels of said frame
-//0 frame index, so frame 0 is the first frame
+//1 frame index, so frame 1 is the first frame
+//1 channel index, so 1 is the first channel
 int Fseq::readFrame(uint8_t* buf, uint32_t frame, uint32_t start_channel, uint32_t end_channel){
    
   //see if frame is out of bounds. 
@@ -81,10 +82,10 @@ int Fseq::readFrame(uint8_t* buf, uint32_t frame, uint32_t start_channel, uint32
     return false;
   
   //calcualte file offset for frame number and seek
-  _file.seek(_header_size - 1 + (frame * _channels) + start_channel);
+  _file.seek(_header_size + ((frame - 1) * _channels) + (start_channel - 1));
   
   //pull buffer from file
-  if(!_file.read(buf, (end_channel-start_channel)))
+  if(!_file.read(buf, ((end_channel-start_channel)+1)))
     return false;
   
   return true;
